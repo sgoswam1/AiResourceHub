@@ -32,6 +32,36 @@ import { INITIAL_APPS, INITIAL_COURSES } from './data/initialData';
 import { AIApp, AICourse, WeeklyTrendsResponse } from './types';
 import fallbackTrends from './data/weeklyTrends.json';
 
+function formatDateToDdMmmYy(dateStr: string): string {
+  if (!dateStr) return '';
+  // Expected input: YYYY-MM-DD (e.g. "2026-07-11")
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const year = parts[0];
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const day = parts[2];
+  
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthName = months[monthIdx] || '';
+  const shortYear = year.slice(-2);
+  const formattedDay = String(parseInt(day, 10)).padStart(2, '0');
+  
+  return `${formattedDay}-${monthName}-${shortYear}`;
+}
+
+function formatMonthToMmmYy(monthStr: string): string {
+  if (!monthStr) return '';
+  // Expected input: YYYY-MM (e.g. "2026-07")
+  const parts = monthStr.split('-');
+  if (parts.length !== 2) return monthStr;
+  const year = parts[0];
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthName = months[monthIdx] || '';
+  const shortYear = year.slice(-2);
+  return `${monthName}-${shortYear}`;
+}
+
 export default function App() {
   // Navigation & filtering state
   const [activeTab, setActiveTab] = useState<'trends' | 'apps' | 'courses'>('trends');
@@ -54,6 +84,12 @@ export default function App() {
   const [trends, setTrends] = useState<WeeklyTrendsResponse | null>(null);
   const [loadingTrends, setLoadingTrends] = useState<boolean>(true);
   const [trendsError, setTrendsError] = useState<string | null>(null);
+
+  // Dynamic Apps & Courses state
+  const [apps, setApps] = useState<AIApp[]>(INITIAL_APPS);
+  const [courses, setCourses] = useState<AICourse[]>(INITIAL_COURSES);
+  const [resourcesUpdatedMonth, setResourcesUpdatedMonth] = useState<string>('');
+  const [loadingResources, setLoadingResources] = useState<boolean>(true);
 
   // Apply dark mode theme
   useEffect(() => {
@@ -85,12 +121,33 @@ export default function App() {
     }
   };
 
+  // Fetch monthly apps and courses
+  const fetchResources = async () => {
+    setLoadingResources(true);
+    try {
+      const res = await fetch('/api/resources');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.apps && data.courses) {
+          setApps(data.apps);
+          setCourses(data.courses);
+          setResourcesUpdatedMonth(data.updatedMonth);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch monthly updated apps/courses, using curated baseline.', err);
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
   useEffect(() => {
     fetchTrends();
+    fetchResources();
   }, []);
 
   // Filter apps
-  const filteredApps = INITIAL_APPS.filter(app => {
+  const filteredApps = apps.filter(app => {
     const matchesCat = selectedAppCat === 'all' || app.catKey === selectedAppCat;
     const matchesSearch = searchQuery === '' || 
       app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,7 +157,7 @@ export default function App() {
   });
 
   // Filter courses
-  const filteredCourses = INITIAL_COURSES.filter(course => {
+  const filteredCourses = courses.filter(course => {
     const matchesProvider = selectedCourseProvider === 'all' || course.provider === selectedCourseProvider;
     const matchesSearch = searchQuery === '' ||
       course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -111,7 +168,7 @@ export default function App() {
   });
 
   // Unique course providers list for quick filters
-  const providers = ['all', ...Array.from(new Set(INITIAL_COURSES.map(c => c.provider)))];
+  const providers = ['all', ...Array.from(new Set(courses.map(c => c.provider)))];
 
   // Unique app categories list
   const appCategories = [
@@ -130,7 +187,7 @@ export default function App() {
 
       {/* Primary Header */}
       <nav className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b0f19]/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/60 shadow-sm transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-[90%] w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
           {/* Left Branding */}
           <div className="flex items-center gap-3">
@@ -152,34 +209,6 @@ export default function App() {
                 <span className="text-[10px] block font-bold text-teal-600 dark:text-teal-400 tracking-widest uppercase leading-none mt-0.5">Resources Pulse</span>
               </div>
             </div>
-          </div>
-
-          {/* Center Tabs Navigation (Desktop) */}
-          <div className="hidden md:flex items-center gap-1.5 bg-slate-100 dark:bg-[#131a26] p-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-            <button 
-              onClick={() => { setActiveTab('trends'); setSearchQuery(''); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'trends' ? 'bg-white dark:bg-[#1a2333] text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span>Weekly Insights</span>
-              <span className="bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">New</span>
-            </button>
-            <button 
-              onClick={() => { setActiveTab('apps'); setSelectedAppCat('all'); setSearchQuery(''); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'apps' ? 'bg-white dark:bg-[#1a2333] text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
-            >
-              <Cpu className="w-4 h-4" />
-              <span>Applications</span>
-              <span className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{INITIAL_APPS.length}</span>
-            </button>
-            <button 
-              onClick={() => { setActiveTab('courses'); setSelectedCourseProvider('all'); setSearchQuery(''); }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'courses' ? 'bg-white dark:bg-[#1a2333] text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Free Courses</span>
-              <span className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{INITIAL_COURSES.length}</span>
-            </button>
           </div>
 
           {/* Right Controls */}
@@ -209,95 +238,141 @@ export default function App() {
       </nav>
 
       {/* Main Content Area */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
+      <div className="flex-1 max-w-[90%] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
         
-        {/* Left Sidebar Filters (Desktop) */}
-        <aside className="w-full md:w-64 shrink-0 hidden md:block">
-          <div className="sticky top-24 space-y-6">
-            
-            {/* Dynamic filter panel based on Active Tab */}
-            {activeTab === 'apps' && (
-              <div className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm space-y-4">
-                <div>
-                  <h3 className="font-display font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-1.5">
-                    <Cpu className="w-3.5 h-3.5 text-teal-500" />
-                    <span>App Categories</span>
-                  </h3>
-                  <div className="flex flex-col gap-1">
-                    {appCategories.map(cat => {
-                      const count = cat.key === 'all' ? INITIAL_APPS.length : INITIAL_APPS.filter(a => a.catKey === cat.key).length;
-                      return (
-                        <button
-                          key={cat.key}
-                          onClick={() => { setSelectedAppCat(cat.key); setSearchQuery(''); }}
-                          className={`flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${selectedAppCat === cat.key ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#16202f]'}`}
-                        >
-                          <span className="truncate mr-2">{cat.label}</span>
-                          <span className="text-[10px] font-bold opacity-80">{count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+        {/* About AI Resources Hub - Top Banner */}
+        <div className="bg-gradient-to-r from-teal-500/10 via-indigo-500/[0.03] to-teal-500/10 dark:from-[#111e30] dark:to-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-full blur-2xl -mr-5 -mt-5 pointer-events-none"></div>
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-slate-800 dark:text-slate-100 font-extrabold text-base tracking-tight font-display">
+                <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                  <Sparkles className="w-4 h-4" />
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'courses' && (
-              <div className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm space-y-4">
-                <div>
-                  <h3 className="font-display font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-teal-500" />
-                    <span>Providers</span>
-                  </h3>
-                  <div className="flex flex-col gap-1">
-                    {providers.map(provider => {
-                      const count = provider === 'all' ? INITIAL_COURSES.length : INITIAL_COURSES.filter(c => c.provider === provider).length;
-                      return (
-                        <button
-                          key={provider}
-                          onClick={() => { setSelectedCourseProvider(provider); setSearchQuery(''); }}
-                          className={`flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${selectedCourseProvider === provider ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#16202f]'}`}
-                        >
-                          <span className="capitalize">{provider === 'all' ? 'All Providers' : provider}</span>
-                          <span className="text-[10px] font-bold opacity-80">{count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Elegant Information Card */}
-            <div className="bg-gradient-to-br from-teal-500/5 to-indigo-500/5 dark:from-[#111e30] dark:to-[#0f172a] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm space-y-3">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold text-xs">
-                <Sparkles className="w-4 h-4 text-teal-500 shrink-0" />
                 <span>About AI Resources Hub</span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl font-sans">
                 A carefully curated directory of elite artificial intelligence platforms, verified free educational courses, and trending weekly research summaries updated automatically every weekend.
               </p>
             </div>
-
           </div>
-        </aside>
+        </div>
 
-        {/* Primary Page Feed */}
-        <main className="flex-1 min-w-0">
+        {/* Center Tabs Navigation inside container */}
+        <div className="bg-white dark:bg-[#0e1422] p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button 
+              onClick={() => { setActiveTab('trends'); setSearchQuery(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'trends' ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>Weekly Insights</span>
+              <span className="bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">New</span>
+            </button>
+            <button 
+              onClick={() => { setActiveTab('apps'); setSelectedAppCat('all'); setSearchQuery(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'apps' ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+            >
+              <Cpu className="w-4 h-4" />
+              <span>Applications</span>
+              <span className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{apps.length}</span>
+            </button>
+            <button 
+              onClick={() => { setActiveTab('courses'); setSelectedCourseProvider('all'); setSearchQuery(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'courses' ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400 shadow-sm font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Free Courses</span>
+              <span className="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{courses.length}</span>
+            </button>
+          </div>
           
-          {/* Mobile view search block */}
-          <div className="block sm:hidden mb-5">
-            <div className="relative">
-              <input 
-                type="search" 
-                placeholder="Search..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131a26]/40 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            </div>
+          <div className="text-xs text-slate-400 dark:text-slate-500 font-mono hidden md:block">
+            {activeTab === 'trends' ? 'Updated Saturdays' : activeTab === 'apps' ? 'Filter by category on sidebar' : 'Filter by provider on sidebar'}
           </div>
+        </div>
+
+        {/* Content columns */}
+        <div className="flex flex-col md:flex-row gap-8 items-start w-full">
+          
+          {/* Left Sidebar Filters (Desktop) */}
+          {activeTab !== 'trends' && (
+            <aside className="w-full md:w-64 shrink-0 hidden md:block">
+              <div className="sticky top-24 space-y-6">
+                
+                {/* Dynamic filter panel based on Active Tab */}
+                {activeTab === 'apps' && (
+                  <div className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm space-y-4">
+                    <div>
+                      <h3 className="font-display font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-1.5">
+                        <Cpu className="w-3.5 h-3.5 text-teal-500" />
+                        <span>App Categories</span>
+                      </h3>
+                      <div className="flex flex-col gap-1">
+                        {appCategories.map(cat => {
+                          const count = cat.key === 'all' ? apps.length : apps.filter(a => a.catKey === cat.key).length;
+                          return (
+                            <button
+                              key={cat.key}
+                              onClick={() => { setSelectedAppCat(cat.key); setSearchQuery(''); }}
+                              className={`flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${selectedAppCat === cat.key ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#16202f]'}`}
+                            >
+                              <span className="truncate mr-2">{cat.label}</span>
+                              <span className="text-[10px] font-bold opacity-80">{count}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'courses' && (
+                  <div className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-4 shadow-sm space-y-4">
+                    <div>
+                      <h3 className="font-display font-bold text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-teal-500" />
+                        <span>Providers</span>
+                      </h3>
+                      <div className="flex flex-col gap-1">
+                        {providers.map(provider => {
+                          const count = provider === 'all' ? courses.length : courses.filter(c => c.provider === provider).length;
+                          return (
+                            <button
+                              key={provider}
+                              onClick={() => { setSelectedCourseProvider(provider); setSearchQuery(''); }}
+                              className={`flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg transition-all ${selectedCourseProvider === provider ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#16202f]'}`}
+                            >
+                              <span className="capitalize">{provider === 'all' ? 'All Providers' : provider}</span>
+                              <span className="text-[10px] font-bold opacity-80">{count}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </aside>
+          )}
+
+          {/* Primary Page Feed */}
+          <main className="flex-1 min-w-0 w-full">
+            
+            {/* Mobile view search block */}
+            <div className="block sm:hidden mb-5">
+              <div className="relative">
+                <input 
+                  type="search" 
+                  placeholder="Search..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#131a26]/40 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+              </div>
+            </div>
 
           <AnimatePresence mode="wait">
             
@@ -321,7 +396,7 @@ export default function App() {
                       </span>
                       {trends?.updatedDate && (
                         <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                          Last Refreshed: <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-semibold">{trends.updatedDate}</span>
+                          Last Refreshed: <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-semibold">{formatDateToDdMmmYy(trends.updatedDate)}</span>
                         </span>
                       )}
                     </div>
@@ -462,7 +537,14 @@ export default function App() {
                 {/* Search / Filter summary header */}
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <h2 className="font-display font-bold text-xl tracking-tight">AI Applications</h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-display font-bold text-xl tracking-tight">AI Applications</h2>
+                      {resourcesUpdatedMonth && (
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium px-2 py-0.5 rounded border border-slate-200/20">
+                          Refreshed: <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{formatMonthToMmmYy(resourcesUpdatedMonth)}</span>
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Showing {filteredApps.length} tool{filteredApps.length === 1 ? '' : 's'} across the catalog.</p>
                   </div>
                   <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
@@ -577,7 +659,14 @@ export default function App() {
                 {/* Search / Filter summary header */}
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <h2 className="font-display font-bold text-xl tracking-tight">Free Professional AI Courses</h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-display font-bold text-xl tracking-tight">Free Professional AI Courses</h2>
+                      {resourcesUpdatedMonth && (
+                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium px-2 py-0.5 rounded border border-slate-200/20">
+                          Refreshed: <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{formatMonthToMmmYy(resourcesUpdatedMonth)}</span>
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Showing {filteredCourses.length} course{filteredCourses.length === 1 ? '' : 's'} across major institutions.</p>
                   </div>
                   <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
@@ -681,11 +770,12 @@ export default function App() {
 
           </AnimatePresence>
         </main>
-      </div>
+      </div> {/* Closes columns container */}
+    </div> {/* Closes main content container */}
 
       {/* Premium Clean Footer */}
       <footer className="bg-white dark:bg-[#0e1422] border-t border-slate-200 dark:border-slate-800/80 py-8 px-4 transition-colors duration-300 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="max-w-[90%] w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left space-y-1">
             <p className="text-xs font-semibold text-slate-900 dark:text-white">
               AI Resources Hub
