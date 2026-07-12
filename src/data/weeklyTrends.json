@@ -1,0 +1,66 @@
+{
+  "updatedDate": "2026-07-04",
+  "trendingNews": [
+    {
+      "title": "Gemini 3.5 Suite Launches with Deep Multi-Agent Workflows",
+      "summary": "Google introduces Gemini 3.5 Flash and Pro Preview, establishing new benchmarks in speed, reasoning, and multi-agent interactions with built-in grounding.",
+      "impact": "Enables developers to orchestrate multiple sub-agents synchronously with near-zero latency, accelerating the transition from simple assistants to full-stack agents.",
+      "sourceUrl": "https://ai.google/discover/gemini",
+      "category": "Breakthrough"
+    },
+    {
+      "title": "Claude Code Released as a Powerful CLI Agent for Complex Refactoring",
+      "summary": "Anthropic launches Claude Code, an agentic terminal command-line interface that allows engineers to complete multi-file edits, write tests, and debug errors.",
+      "impact": "Shifts software development from auto-completion prompts to high-agency engineering companions executing entire pipelines safely.",
+      "sourceUrl": "https://www.anthropic.com/claude",
+      "category": "Developer Tools"
+    },
+    {
+      "title": "Apple Intelligence Seamlessly Integrates Deeper On-Device Context Models",
+      "summary": "Apple ships fully on-device instruction-tuned models with private cloud compute, bringing low-latency context reasoning to everyday mobile notifications and actions.",
+      "impact": "Prioritizes user privacy for personal telemetry and daily workflows, demonstrating a hybrid local-plus-cloud orchestration model.",
+      "sourceUrl": "https://www.apple.com/newsroom",
+      "category": "Consumer Tech"
+    }
+  ],
+  "innovations": [
+    {
+      "title": "Unified Multimodal Audio-Visual Streams with Live API",
+      "description": "Standardized real-time 16-bit PCM streaming allows applications to read and write audio-visual elements dynamically with under 400ms roundtrip latency.",
+      "category": "Real-time AI",
+      "highlights": [
+        "Direct audio-in and audio-out stream mapping without pipeline text conversion",
+        "Low-latency speech translation supporting over 40 languages",
+        "Synchronized image analysis at 1 frame-per-second intervals"
+      ],
+      "link": "https://ai.google.dev/gemini-api/docs/live-api"
+    },
+    {
+      "title": "Self-Repairing Code Compilers and Sandbox Environments",
+      "description": "New execution-first agents compile software inside secure browser-based sandboxes, automatically reading compiler trace logs to resolve dependencies.",
+      "category": "Software Engineering",
+      "highlights": [
+        "Eliminates dependency mismatches by automatically checking package.json",
+        "Pre-emptively corrects type errors during the build phase",
+        "Bypasses classic syntax errors through continuous code refactoring loops"
+      ],
+      "link": "https://github.com"
+    }
+  ],
+  "ideas": [
+    {
+      "title": "Real-time Meeting Coach & Active Agenda Copilot",
+      "concept": "A live microphone agent that connects to a virtual meeting, tracks key spoken topics, and cross-references them with the meeting agenda to surface pacing tips.",
+      "howToBuild": "Build an Express web server that processes live audio streams, uses Gemini 3.1 Live API to transcribe and analyze the discussion, and sends pacing recommendations via Server-Sent Events.",
+      "difficulty": "Intermediate",
+      "estimatedTime": "2-3 days"
+    },
+    {
+      "title": "AI-Powered SEO Landing Page Generator & Enhancer",
+      "concept": "An automated compiler that reads a product description, automatically researches high-ranking competitor terms, and writes optimized React components.",
+      "howToBuild": "Create a Vite React interface connected to a backend using Gemini 3.5 with Search Grounding. The backend generates structured copy, selects appropriate layouts, and outputs standard Tailwind code.",
+      "difficulty": "Beginner",
+      "estimatedTime": "1 day"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "AI Resources Hub",
+  "description": "A highly polished directory of free AI courses, applications, and curated weekly trending news and innovations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
