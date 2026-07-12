@@ -4,3 +4,5 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
 }
+
+@variant dark (&:where(.dark, .dark *));
