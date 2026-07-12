@@ -44,7 +44,7 @@ export default function App() {
   // Theme state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme');
+      const saved = localStorage.getItem('ai_hub_theme_mode');
       if (saved) return saved === 'dark';
     }
     return false;
@@ -60,10 +60,10 @@ export default function App() {
     const root = window.document.documentElement;
     if (darkMode) {
       root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('ai_hub_theme_mode', 'dark');
     } else {
       root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      localStorage.setItem('ai_hub_theme_mode', 'light');
     }
   }, [darkMode]);
 
