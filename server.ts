@@ -551,8 +551,10 @@ function getInjectedHtml(html: string, req: express.Request): string {
 
   // Google AdSense Script
   if (pubId && pubId.trim() !== '' && pubId !== 'pub-1234567890123456') {
-    headInjections += `    <!-- Google AdSense -->\n`;
-    headInjections += `    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>\n`;
+    if (!html.includes('adsbygoogle.js')) {
+      headInjections += `    <!-- Google AdSense -->\n`;
+      headInjections += `    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>\n`;
+    }
   }
 
   // Replace default title and description in index.html
