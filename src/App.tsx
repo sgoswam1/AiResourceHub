@@ -30,6 +30,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { INITIAL_APPS, INITIAL_COURSES } from './data/initialData';
 import { AIApp, AICourse, WeeklyTrendsResponse } from './types';
+import fallbackTrends from './data/weeklyTrends.json';
 
 export default function App() {
   // Navigation & filtering state
@@ -76,7 +77,9 @@ export default function App() {
       const data = await res.json();
       setTrends(data);
     } catch (err: any) {
-      setTrendsError(err?.message || 'Server connection timed out. Showing pre-seeded trends.');
+      console.warn('Backend fetch failed, falling back to static local trends:', err);
+      // Fallback gracefully to the imported static JSON file
+      setTrends(fallbackTrends as WeeklyTrendsResponse);
     } finally {
       setLoadingTrends(false);
     }
