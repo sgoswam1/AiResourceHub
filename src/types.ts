@@ -44,9 +44,20 @@ export interface CreativeIdea {
   estimatedTime: string;
 }
 
+export interface AIPodcast {
+  title: string;
+  channel: string;
+  duration: string;
+  publishedDate: string;
+  link: string;
+  summary: string;
+  popularity: string;
+}
+
 export interface WeeklyTrendsResponse {
   updatedDate: string;
   trendingNews: TrendingNews[];
   innovations: Innovation[];
   ideas: CreativeIdea[];
+  podcasts: AIPodcast[];
 }

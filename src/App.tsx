@@ -25,12 +25,16 @@ import {
   Award,
   ExternalLink,
   ChevronRight,
-  Info
+  Info,
+  Headphones,
+  Clock
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+
 import { INITIAL_APPS, INITIAL_COURSES } from './data/initialData';
 import { AIApp, AICourse, WeeklyTrendsResponse } from './types';
 import fallbackTrends from './data/weeklyTrends.json';
+import { AdSenseBanner } from './components/AdSenseBanner';
+
 
 function formatDateToDdMmmYy(dateStr: string): string {
   if (!dateStr) return '';
@@ -353,6 +357,9 @@ export default function App() {
                   </div>
                 )}
 
+                {/* Highly-polished responsive AdSense banner slot or custom Sponsor banner */}
+                <AdSenseBanner slotId="1234567890" />
+
               </div>
             </aside>
           )}
@@ -374,16 +381,11 @@ export default function App() {
               </div>
             </div>
 
-          <AnimatePresence mode="wait">
+          <div>
             
             {/* WEEKLY INSIGHTS HOME TAB */}
             {activeTab === 'trends' && (
-              <motion.div
-                key="trends-tab"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.25 }}
+              <div
                 className="space-y-8"
               >
                 {/* Home Header */}
@@ -428,7 +430,7 @@ export default function App() {
                         <h3 className="font-display font-bold text-lg tracking-tight">Trending News & Breakthroughs</h3>
                       </div>
                       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                        {trends.trendingNews.map((news, index) => (
+                        {(trends.trendingNews || []).map((news, index) => (
                           <article key={index} className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                             <div className="space-y-3">
                               <div className="flex items-center justify-between gap-2">
@@ -463,7 +465,7 @@ export default function App() {
                         <h3 className="font-display font-bold text-lg tracking-tight">Key Architectural Innovations</h3>
                       </div>
                       <div className="grid gap-5 sm:grid-cols-2">
-                        {trends.innovations.map((inn, index) => (
+                        {(trends.innovations || []).map((inn, index) => (
                           <article key={index} className="bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                             <div className="space-y-3">
                               <span className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">{inn.category}</span>
@@ -473,7 +475,7 @@ export default function App() {
                             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60">
                               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Key Highlights</p>
                               <ul className="space-y-1">
-                                {inn.highlights.map((h, hidx) => (
+                                {(inn.highlights || []).map((h, hidx) => (
                                   <li key={hidx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-1.5">
                                     <span className="text-indigo-500 font-bold mt-0.5">•</span>
                                     <span>{h}</span>
@@ -493,7 +495,7 @@ export default function App() {
                         <h3 className="font-display font-bold text-lg tracking-tight">AI Project Ideas for Builders</h3>
                       </div>
                       <div className="grid gap-5 sm:grid-cols-2">
-                        {trends.ideas.map((idea, index) => {
+                        {(trends.ideas || []).map((idea, index) => {
                           const diffColors = {
                             Beginner: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
                             Intermediate: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -519,19 +521,81 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* spacing block */}
+                    <div className="h-4"></div>
+
+                    {/* podcasts category */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <Headphones className="w-5 h-5 text-pink-500" />
+                          <h3 className="font-display font-bold text-lg tracking-tight">AI & Innovation Podcasts</h3>
+                        </div>
+                        <span className="text-[10px] bg-pink-500/10 text-pink-600 dark:text-pink-400 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                          15-30 Mins • Auto-Refreshed Every Saturday
+                        </span>
+                      </div>
+                      
+                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                        {trends.podcasts && trends.podcasts.map((podcast, index) => (
+                          <article key={index} className="relative bg-white dark:bg-[#0e1422] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                            {/* Subtle top accent gradient line shown on hover */}
+                            <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-pink-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 bg-violet-500/10 dark:bg-violet-500/15 px-2.5 py-0.5 rounded-full uppercase tracking-wide">{podcast.channel}</span>
+                                <div className="flex items-center gap-1 text-xs text-slate-400 font-semibold">
+                                  <Clock className="w-3.5 h-3.5 text-pink-500" />
+                                  <span>{podcast.duration}</span>
+                                </div>
+                              </div>
+                              
+                              <h4 className="font-display font-bold text-base text-slate-900 dark:text-white leading-snug group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                                {podcast.title}
+                              </h4>
+                              
+                              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                                {podcast.summary}
+                              </p>
+                            </div>
+                            
+                            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between gap-3 flex-wrap">
+                              <div className="flex gap-2 items-center">
+                                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                  {podcast.popularity}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+                                  {podcast.publishedDate}
+                                </span>
+                                {podcast.link && (
+                                  <a 
+                                    href={podcast.link} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="inline-flex items-center gap-0.5 text-xs text-pink-600 dark:text-pink-400 font-bold hover:underline"
+                                  >
+                                    <span>Listen</span>
+                                    <ArrowUpRight className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+
                   </div>
                 ) : null}
-              </motion.div>
+              </div>
             )}
 
             {/* APPLICATIONS TAB */}
             {activeTab === 'apps' && (
-              <motion.div
-                key="apps-tab"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.25 }}
+              <div
                 className="space-y-6"
               >
                 {/* Search / Filter summary header */}
@@ -643,17 +707,12 @@ export default function App() {
                     ))}
                   </div>
                 )}
-              </motion.div>
+              </div>
             )}
 
             {/* FREE COURSES TAB */}
             {activeTab === 'courses' && (
-              <motion.div
-                key="courses-tab"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.25 }}
+              <div
                 className="space-y-6"
               >
                 {/* Search / Filter summary header */}
@@ -765,10 +824,10 @@ export default function App() {
                     ))}
                   </div>
                 )}
-              </motion.div>
+              </div>
             )}
 
-          </AnimatePresence>
+          </div>
         </main>
       </div> {/* Closes columns container */}
     </div> {/* Closes main content container */}
@@ -793,23 +852,15 @@ export default function App() {
       </footer>
 
       {/* Overlay Mobile Navigation Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black z-50 md:hidden"
-            />
-            <motion.div 
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 max-w-xs w-full bg-white dark:bg-[#0b0f19] z-50 p-6 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800 md:hidden"
-            >
+      {mobileMenuOpen && (
+        <>
+          <div 
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/50 z-50 md:hidden"
+          />
+          <div 
+            className="fixed inset-y-0 left-0 max-w-xs w-full bg-white dark:bg-[#0b0f19] z-50 p-6 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800 md:hidden transition-all duration-300"
+          >
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -886,10 +937,9 @@ export default function App() {
               <div className="border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
                 <span className="text-[10px] text-slate-400 block">Weekly Updates: Saturdays</span>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          </div>
+        </>
+      )}
     </div>
   );
 }

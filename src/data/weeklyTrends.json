@@ -62,5 +62,52 @@
       "difficulty": "Beginner",
       "estimatedTime": "1 day"
     }
+  ],
+  "podcasts": [
+    {
+      "title": "The Future of AI Coding Agents & CLI Companions",
+      "channel": "Latent Space Podcast",
+      "duration": "24 mins",
+      "publishedDate": "6 days ago",
+      "link": "https://www.latent.space/",
+      "summary": "A deep-dive investigation into Claude Code, command-line coding agents, and why autonomous CLI environments are outpacing visual browser setups in speed and accuracy.",
+      "popularity": "45k+ views • Highly Recommended"
+    },
+    {
+      "title": "Why Multi-Agent Networks Win Over Monolithic AI",
+      "channel": "AI Horizon Daily",
+      "duration": "18 mins",
+      "publishedDate": "3 days ago",
+      "link": "https://www.youtube.com/",
+      "summary": "An exploration of specialized agent orchestration, detailing how narrow models performing sequential micro-tasks achieve higher reliability than single prompts.",
+      "popularity": "28k+ views • Trending"
+    },
+    {
+      "title": "Optimizing On-Device local LLMs for Extreme Latency",
+      "channel": "Tech Innovation Daily",
+      "duration": "15 mins",
+      "publishedDate": "5 days ago",
+      "link": "https://www.apple.com/apple-intelligence/",
+      "summary": "How Apple and other mobile leaders utilize INT4 quantization to squeeze robust local context models into daily hardware layers for complete user privacy.",
+      "popularity": "60k+ views • Highly Recommended"
+    },
+    {
+      "title": "Gemini Live API and the Native Audio Stream Wave",
+      "channel": "Voices of AI",
+      "duration": "22 mins",
+      "publishedDate": "2 days ago",
+      "link": "https://ai.google/discover/gemini",
+      "summary": "A breakdown of native multi-modal model mechanics that enable under-400ms speech loops, eliminating the latency of traditional audio-to-text pipeline chains.",
+      "popularity": "12k+ plays • New Release"
+    },
+    {
+      "title": "Free Micro-Credentials and Global Tech Upskilling",
+      "channel": "LearnFast Technology",
+      "duration": "29 mins",
+      "publishedDate": "4 days ago",
+      "link": "https://www.deeplearning.ai/",
+      "summary": "A roundtable discussing how modular, highly specialized free professional AI guides from elite universities are bridging tech skills gaps globally.",
+      "popularity": "35k+ views • Popular"
+    }
   ]
 }
