@@ -558,6 +558,10 @@ function getInjectedHtml(html: string, req: express.Request): string {
   // Replace default title and description in index.html
   let modifiedHtml = html;
   
+  // Replace Google Site Verification if present
+  const verificationCode = process.env.GOOGLE_SITE_VERIFICATION || process.env.VITE_GOOGLE_SITE_VERIFICATION || 'la3aWrlQmZwc9Uzi5z7UdgpgQlqcn7mfYpVQHiItmsE';
+  modifiedHtml = modifiedHtml.replace(/%GOOGLE_SITE_VERIFICATION%/g, verificationCode);
+  
   // Replace <title>
   modifiedHtml = modifiedHtml.replace(
     /<title>.*?<\/title>/i,
