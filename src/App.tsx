@@ -34,6 +34,7 @@ import { INITIAL_APPS, INITIAL_COURSES } from './data/initialData';
 import { AIApp, AICourse, WeeklyTrendsResponse } from './types';
 import fallbackTrends from './data/weeklyTrends.json';
 import { AdSenseBanner } from './components/AdSenseBanner';
+import { Analytics } from '@vercel/analytics/react';
 
 
 function formatDateToDdMmmYy(dateStr: string): string {
@@ -940,6 +941,7 @@ export default function App() {
           </div>
         </>
       )}
+      <Analytics />
     </div>
   );
 }
