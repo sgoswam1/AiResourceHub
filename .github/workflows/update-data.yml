@@ -1,0 +1,37 @@
+name: Update AI Hub data
+
+on:
+  schedule:
+    - cron: "0 3 * * 6"   # every Saturday, 03:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Auto-Refresh Saturday script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/update-data.js
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "AI Hub Automator"
+          git config --global user.email "automator@ai-resources-hub.com"
+          git add src/data/weeklyTrends.json
+          git commit -m "chore: auto-update trending AI insights [Saturday Refresh]" || echo "No new updates found this week."
+          git push
