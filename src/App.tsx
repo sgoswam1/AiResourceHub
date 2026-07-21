@@ -34,7 +34,6 @@ import { INITIAL_APPS, INITIAL_COURSES } from './data/initialData';
 import { AIApp, AICourse, WeeklyTrendsResponse } from './types';
 import fallbackTrends from './data/weeklyTrends.json';
 import { AdSenseBanner } from './components/AdSenseBanner';
-import { Analytics } from '@vercel/analytics/react';
 
 
 function formatDateToDdMmmYy(dateStr: string): string {
@@ -257,7 +256,7 @@ export default function App() {
                 <span>About AI Resources Hub</span>
               </div>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-4xl font-sans">
-                A carefully curated directory of elite artificial intelligence platforms, verified free educational courses, and trending weekly research summaries updated automatically every weekend.
+                A carefully curated directory of elite artificial intelligence platforms, verified free educational courses, and a rotating spotlight of notable AI trends, refreshed weekly.
               </p>
             </div>
           </div>
@@ -403,9 +402,9 @@ export default function App() {
                         </span>
                       )}
                     </div>
-                    <h2 className="font-display font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Trending AI Pulse & Innovations</h2>
+                    <h2 className="font-display font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">AI Pulse & Innovations</h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Real-time breakthrough news, key technical innovations, and novel project concepts automatically generated using Google Search Grounding.
+                      A rotating spotlight of notable AI trends, technical breakthroughs, and project ideas, refreshed weekly.
                     </p>
                   </div>
                 </div>
@@ -413,7 +412,7 @@ export default function App() {
                 {loadingTrends ? (
                   <div className="py-20 text-center space-y-4">
                     <div className="w-10 h-10 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin mx-auto"></div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">Gathering Saturday reports and querying search grounding...</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-mono">Gathering this week's spotlight...</p>
                   </div>
                 ) : trendsError ? (
                   <div className="bg-amber-500/5 border border-amber-500/25 rounded-2xl p-6 text-center space-y-3">
@@ -428,7 +427,7 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-teal-500" />
-                        <h3 className="font-display font-bold text-lg tracking-tight">Trending News & Breakthroughs</h3>
+                        <h3 className="font-display font-bold text-lg tracking-tight">Notable AI Trends</h3>
                       </div>
                       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {(trends.trendingNews || []).map((news, index) => (
@@ -941,7 +940,6 @@ export default function App() {
           </div>
         </>
       )}
-      <Analytics />
     </div>
   );
 }

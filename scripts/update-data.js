@@ -1,8 +1,14 @@
 /**
  * Auto-Update Script for AI Resources Hub
  * Runs on Github Actions every Saturday.
- * Queries Gemini 3.5 with Search Grounding to compile top weekly news, innovations, and ideas,
- * then saves them directly back into the codebase to update static deployments.
+ * Asks Gemini to synthesize a fresh weekly spotlight of AI trends, innovations,
+ * and builder ideas from its own knowledge (no Search grounding — keeps this
+ * script on the free Gemini API tier), then saves it back into the codebase.
+ *
+ * Note: without Search grounding, this is NOT live news — the model can only
+ * draw on what it already knows, not what happened this actual week. To keep
+ * it feeling fresh across runs, we feed in last week's picks and ask for a
+ * different angle / different items each time.
  */
 
 import { GoogleGenAI, Type } from '@google/genai';
@@ -43,21 +49,39 @@ function getMostRecentSaturday() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+function loadPreviousTitles() {
+  try {
+    const targetPath = path.join(process.cwd(), 'src', 'data', 'weeklyTrends.json');
+    const prev = JSON.parse(fs.readFileSync(targetPath, 'utf-8'));
+    const titles = [
+      ...(prev.trendingNews || []).map(x => x.title),
+      ...(prev.innovations || []).map(x => x.title),
+      ...(prev.ideas || []).map(x => x.title)
+    ].filter(Boolean);
+    return titles;
+  } catch {
+    return [];
+  }
+}
+
 async function run() {
   const satDate = getMostRecentSaturday();
   console.log(`[GitHub Action] Commencing Saturday update for week ending: ${satDate}`);
 
+  const previousTitles = loadPreviousTitles();
+
   try {
-    const prompt = `Research and retrieve top 3 AI trending news articles, 2 major AI breakthrough innovations, and 2 creative AI builder project ideas for the week ending Saturday, ${satDate}. 
-    Make sure to use googleSearch grounding to pull real news from the web.
+    const prompt = `Compile a spotlight of 3 notable AI trends/topics worth knowing about, 2 AI breakthrough concepts or techniques, and 2 creative AI builder project ideas.
+    This is based on your own knowledge, not live search — do not claim these are "this week's news" or attach specific recent dates/events you cannot verify. Frame trends and breakthroughs as genuinely useful, currently-relevant knowledge rather than breaking news.
+    Do not include a sourceUrl unless it is a stable, well-known official homepage you are confident is correct (e.g. a product's own site) — never fabricate a link to a specific article.
+    ${previousTitles.length ? `Avoid repeating or closely resembling these previously-featured items — pick a different angle or different items this time: ${previousTitles.join('; ')}.` : ''}
     Be precise, elegant, and modern. Deliver exactly in the requested JSON structure.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
-        systemInstruction: "You are an expert AI industry analyst, tech reporter, and software architect. Your goal is to curate highly technical, accurate, and inspiring weekly trending news, innovations, and development ideas. Return valid JSON adhering strictly to the responseSchema provided. Do not invent fake news; use the search grounding tool to locate actual articles and announcements.",
-        tools: [{ googleSearch: {} }],
+        systemInstruction: "You are an expert AI industry analyst, tech reporter, and software architect. Your goal is to curate a genuinely useful, technically accurate, and inspiring rotating spotlight of AI trends, breakthrough concepts, and development ideas, drawn from your own knowledge. Never claim something is live/breaking news you cannot verify, and never invent a specific source URL. Return valid JSON adhering strictly to the responseSchema provided.",
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
@@ -71,7 +95,7 @@ async function run() {
                   title: { type: Type.STRING },
                   summary: { type: Type.STRING },
                   impact: { type: Type.STRING },
-                  sourceUrl: { type: Type.STRING },
+                  sourceUrl: { type: Type.STRING, description: "Only include if a stable, well-known official homepage; omit otherwise." },
                   category: { type: Type.STRING }
                 },
                 required: ["title", "summary", "impact", "category"]
@@ -116,10 +140,10 @@ async function run() {
 
     if (response.text) {
       const generatedData = JSON.parse(response.text);
-      console.log(`[Success] Retrieved dynamic weekly trends data.`);
+      generatedData.updatedDate = satDate;
+      generatedData.liveSearchGrounded = false; // flag so the UI can label this honestly if desired
+      console.log(`[Success] Retrieved weekly spotlight data (knowledge-based, not live search).`);
 
-      // Write as static initial data configuration back into src/data/initialData.ts or update a JSON file
-      // Wait, let's create a dedicated trends data file so we don't overwrite user's apps/courses
       const targetPath = path.join(process.cwd(), 'src', 'data', 'weeklyTrends.json');
       fs.writeFileSync(targetPath, JSON.stringify(generatedData, null, 2), 'utf-8');
       console.log(`[Success] Saved weekly trends data to ${targetPath}`);

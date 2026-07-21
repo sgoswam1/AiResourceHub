@@ -10,7 +10,7 @@ import { AIApp, AICourse } from './src/types';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = 3000;
 
 app.use(express.json());
 
@@ -551,18 +551,12 @@ function getInjectedHtml(html: string, req: express.Request): string {
 
   // Google AdSense Script
   if (pubId && pubId.trim() !== '' && pubId !== 'pub-1234567890123456') {
-    if (!html.includes('adsbygoogle.js')) {
-      headInjections += `    <!-- Google AdSense -->\n`;
-      headInjections += `    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>\n`;
-    }
+    headInjections += `    <!-- Google AdSense -->\n`;
+    headInjections += `    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}" crossorigin="anonymous"></script>\n`;
   }
 
   // Replace default title and description in index.html
   let modifiedHtml = html;
-  
-  // Replace Google Site Verification if present
-  const verificationCode = process.env.GOOGLE_SITE_VERIFICATION || process.env.VITE_GOOGLE_SITE_VERIFICATION || 'la3aWrlQmZwc9Uzi5z7UdgpgQlqcn7mfYpVQHiItmsE';
-  modifiedHtml = modifiedHtml.replace(/%GOOGLE_SITE_VERIFICATION%/g, verificationCode);
   
   // Replace <title>
   modifiedHtml = modifiedHtml.replace(
