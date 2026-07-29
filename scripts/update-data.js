@@ -40,7 +40,7 @@ function getMostRecentSaturday() {
   // To get the previous week's Saturday:
   // If today is Sat (6), we want to subtract 7 days to get last week's Sat.
   // Otherwise, we subtract day + 1 to get last Saturday.
-  const daysToSubtract = day === 6 ? 7 : (day + 1);
+  const daysToSubtract = day === 6 ? 0 : (day + 1);
   d.setDate(d.getDate() - daysToSubtract);
   
   const yyyy = d.getFullYear();
