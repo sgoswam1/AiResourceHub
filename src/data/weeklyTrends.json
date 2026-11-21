@@ -1,61 +1,63 @@
 {
-  "updatedDate": "2026-11-14",
+  "updatedDate": "2026-11-21",
   "trendingNews": [
     {
-      "title": "Shift from Monolithic Prompting to Multi-Agent Orchestration",
-      "summary": "Production AI systems are transitioning from single long-prompt workflows to modular multi-agent frameworks that use routing, specialized sub-agents, and reflection loops.",
-      "impact": "Dramatically improves reliability, code generation quality, and multi-step execution rates for complex enterprise software tasks.",
-      "category": "Software Architecture"
+      "title": "Shift Toward Durable Execution for Long-Running AI Workflows",
+      "summary": "Developers are increasingly adopting durable execution frameworks to manage complex, multi-step LLM operations that require persistence, state preservation, and automatic retries across extended runtimes.",
+      "impact": "Eliminates state loss during API timeouts, simplifies asynchronous background processing, and enables enterprise-grade reliability for autonomous processes.",
+      "category": "Infrastructure & Systems",
+      "sourceUrl": "https://temporal.io"
     },
     {
-      "title": "Scaling Test-Time Compute for Complex Reasoning",
-      "summary": "Inference-time search strategies and step-by-step verification enable models to solve high-complexity logical and mathematical problems without requiring massive pre-training compute jumps.",
-      "impact": "Shifts the AI economic landscape toward optimized inference search trees and reward model verifiers.",
+      "title": "Democratization of Sparse Mixture-of-Experts (MoE) Models",
+      "summary": "Sparse MoE architectures have become a dominant design choice for high-capability models, routing inputs to specialized sub-networks to achieve high total parameter capacity at lower active compute costs.",
+      "impact": "Lowers latency and compute bounds during deployment, allowing open-weights developers to run parameter-dense models on standard hardware resources.",
       "category": "Model Architecture"
     },
     {
-      "title": "On-Device Vision-Language Models for Real-Time Perception",
-      "summary": "Highly quantized multimodal models are now capable of running directly on mobile chips and embedded robotics hardware with minimal latency and full offline privacy.",
-      "impact": "Unlocks offline real-time visual assistance, intelligent robotics control, and zero-latency augmented reality features.",
-      "category": "Edge Computing"
+      "title": "Transition from Vector-Only RAG to Hybrid Graph RAG",
+      "summary": "Standard vector retrieval is increasingly paired with Knowledge Graphs to solve multi-hop reasoning challenges and capture structural relationships that semantic similarity alone misses.",
+      "impact": "Improves accuracy and reduces hallucinations in complex domains such as legal discovery, medical diagnostics, and enterprise knowledge management.",
+      "category": "Information Retrieval"
     }
   ],
   "innovations": [
     {
-      "title": "Direct Preference Optimization (DPO)",
-      "description": "An efficient model alignment technique that eliminates the need for fitting a separate reward model, implicitly optimizing the policy LLM directly on pairwise human preferences.",
-      "category": "Alignment & Fine-Tuning",
+      "title": "Mechanistic Interpretability via Sparse Autoencoders (SAEs)",
+      "description": "Sparse Autoencoders are used to decompose dense activation vectors in neural networks into sparse, human-understandable concepts, offering a window into internal representations.",
+      "category": "AI Safety & Interpretability",
       "highlights": [
-        "Eliminates actor-critic reward model instantiation and training instability",
-        "Significantly reduces memory footprint during alignment fine-tuning",
-        "Widely adopted across leading open-weights model post-training pipelines"
-      ]
+        "Disentangles polysemantic neurons into monoparametric feature vectors",
+        "Enables precise feature steering without fine-tuning model weights",
+        "Provides structured visibility into safety-critical decision paths"
+      ],
+      "link": "https://transformer-circuits.pub"
     },
     {
-      "title": "Speculative Decoding with Multi-Token Prediction",
-      "description": "An inference acceleration mechanism that leverages lightweight auxiliary heads to predict multiple subsequent tokens concurrently, validated in a single forward pass by the primary LLM.",
-      "category": "Inference Optimization",
+      "title": "Group Relative Policy Optimization (GRPO)",
+      "description": "A streamlined reinforcement learning technique that eliminates the separate critic model by evaluating a group of outputs generated from the same prompt against their relative average reward.",
+      "category": "Alignment & Fine-Tuning",
       "highlights": [
-        "Delivers 2x to 3x latency improvements for real-time text generation",
-        "Preserves exact mathematical output distribution of the target base model",
-        "Fully compatible with key-value cache optimizations and batch processing"
+        "Significantly reduces memory overhead during RL-based fine-tuning",
+        "Accelerates alignment loops for domain-specific reasoning and coding tasks",
+        "Simplifies reward function implementation for mathematical verification"
       ]
     }
   ],
   "ideas": [
     {
-      "title": "Multimodal Codebase Screencast Reviewer",
-      "concept": "An AI agent that ingests screen recordings of code walk-throughs alongside pull request diffs to auto-generate structured PR documentation and architecture diagrams.",
-      "howToBuild": "Extract frames from screen recordings using OpenCV, feed visual context and audio transcript from Whisper into a vision-language model, and cross-reference code changes against the git diff via vector search.",
+      "title": "Automated Synthetic Dataset Pipeline with Quality Filtering",
+      "concept": "A developer utility that generates domain-specific training data using lightweight local LLMs, coupled with automated quality scoring and deduplication.",
+      "howToBuild": "Combine Ollama for candidate generation with Pydantic for structured JSON output. Run semantic deduplication with vector embeddings, then pass outputs through heuristic rules and an LLM-as-a-judge scoring step before exporting Hugging Face datasets.",
       "difficulty": "Intermediate",
-      "estimatedTime": "2-3 weekends"
+      "estimatedTime": "2-3 weeks"
     },
     {
-      "title": "Self-Healing Microservice API Gateway",
-      "concept": "A resilient HTTP proxy middleware that intercepts upstream third-party API breaking schema changes, dynamically remapping responses to match expected application schemas in real-time.",
-      "howToBuild": "Construct a reverse proxy in Go or Node.js that catches schema validation failures, uses a fast LLM to compare the received payload against the target OpenAPI spec, generates a JSONPath transform rule, and caches the mapping in Redis.",
+      "title": "AST-Aware Terminal Assistant for Contextual Code Refactoring",
+      "concept": "A command-line tool that parses repository Abstract Syntax Trees (ASTs) to supply targeted code context directly to an LLM for fast, accurate refactoring edits.",
+      "howToBuild": "Build a CLI tool in Rust or TypeScript using Tree-sitter to generate ASTs. Filter source files based on git diffs, build concise prompt context blobs, query a fast LLM endpoint, and apply returned diff patches to disk.",
       "difficulty": "Advanced",
-      "estimatedTime": "1 month"
+      "estimatedTime": "3-4 weeks"
     }
   ],
   "liveSearchGrounded": false
